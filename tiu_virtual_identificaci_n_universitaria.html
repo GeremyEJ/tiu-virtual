@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TIU Virtual - Identificación Universitaria</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tiu: {
+              pill: '#D7D8FE',
+              red: '#EA3343',
+              darkNavy: '#1E293B',
+              textGray: '#64748B',
+              bgLight: '#F5F7FD',
+              cardBg: '#FFFFFF'
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            condensed: ['"Barlow Semi Condensed"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & Barlow Semi Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    /* Animación de nubes: Desplazamiento uniforme de DERECHA a IZQUIERDA */
+    @keyframes cloudDriftRightToLeft {
+      0% {
+        transform: translate3d(430px, 0, 0);
+      }
+      100% {
+        transform: translate3d(-180px, 0, 0);
+      }
+    }
+
+    /* TODAS LAS NUBES VIAJAN A LA EXACTA MISMA VELOCIDAD (duración idéntica de 5.6s) */
+    .cloud-uniform {
+      animation: cloudDriftRightToLeft 5.6s linear infinite;
+    }
+
+    /* Desfases escalonados para que el flujo sea continuo e ininterrumpido */
+    .delay-0 { animation-delay: 0.0s; }
+    .delay-1 { animation-delay: -1.1s; }
+    .delay-2 { animation-delay: -2.2s; }
+    .delay-3 { animation-delay: -3.4s; }
+    .delay-4 { animation-delay: -4.5s; }
+
+    /* Animación suave para el modal inferior */
+    @keyframes slideUpModal {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-enter {
+      animation: slideUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-full flex items-center justify-center p-0 sm:p-4 text-slate-800 bg-[#E9ECF4]">
+
+  <!-- CONTENEDOR PRINCIPAL / CELULAR -->
+  <main id="phone-container" class="relative w-full h-full sm:h-[860px] sm:max-w-[400px] bg-[#F5F7FD] sm:rounded-[46px] shadow-2xl flex flex-col justify-between overflow-hidden sm:border-[8px] sm:border-slate-800 transition-all duration-300">
+    
+    <!-- BARRA SUPERIOR MÓVIL (Hora de estado, Dynamic Island y Batería) -->
+    <div class="w-full pt-2.5 px-6 flex justify-between items-center text-[12px] font-semibold text-slate-900 z-30 select-none">
+      <span id="top-status-time" class="tracking-tight font-inter">4:34</span>
+      <div class="h-5 w-24 bg-black rounded-full flex items-center justify-center space-x-1.5 px-2">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+      </div>
+      <div class="flex items-center space-x-1.5 text-[11px] font-inter">
+        <span>5G</span>
+        <svg class="w-5 h-3 fill-current" viewBox="0 0 24 12">
+          <rect x="1" y="1" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="2.5" y="2.5" width="12" height="7" rx="1.2" fill="currentColor"/>
+          <path d="M21 4.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- CABECERA: Botón Atrás '<' y TIU VIRTUAL a la izquierda y con letras juntas -->
+    <header class="w-full px-5 pt-2 pb-1 flex items-center justify-start gap-3.5 z-30 relative select-none">
+      <!-- Botón atrás: Círculo blanco con chevron rojo -->
+      <button id="btn-open-settings" type="button" aria-label="Abrir ajustes" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-slate-100 hover:bg-slate-50 shrink-0">
+        <svg class="w-5 h-5 text-tiu-red stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <!-- Título de la vista: TIU VIRTUAL (Condensado, bold, kerning ajustado y a la izquierda) -->
+      <h1 class="font-condensed font-bold text-[20px] tracking-tight text-slate-900 uppercase leading-none">
+        TIU VIRTUAL
+      </h1>
+    </header>
+
+    <!-- ZONA CENTRAL COMPACTA: HORA, NUBES EN TODA LA ALTURA Y FOTO -->
+    <div class="relative w-full flex-1 flex flex-col items-center justify-between pt-0.5">
+      
+      <!-- 1. RELOJ DIGITAL Y FECHA -->
+      <div class="w-full flex flex-col items-center z-30 relative px-4 mt-0.5">
+        <!-- Pastilla de hora #D7D8FE -->
+        <div class="px-7 py-2.5 rounded-[18px] bg-tiu-pill shadow-xs flex items-center justify-center min-w-[190px]">
+          <span id="live-time" class="font-inter font-normal text-[31px] text-slate-900 tracking-tight" style="font-variant-numeric: tabular-nums;">
+            16:34:55
+          </span>
+        </div>
+
+        <!-- Fecha en español con mayúscula inicial -->
+        <p id="live-date" class="text-tiu-textGray text-[13.5px] font-normal mt-2 tracking-tight capitalize">
+          Martes, 20 Oct 2026
+        </p>
+      </div>
+
+      <!-- 2. PISTA DE NUBES ANIMADAS:
+           Cubre TODA la altura vertical de la foto del alumno (220px de altura total)
+           Desde la cabeza hasta los hombros y la base, todas a velocidad uniforme -->
+      <div class="absolute w-full top-[108px] h-[225px] overflow-hidden pointer-events-none z-10 select-none">
+        
+        <!-- Nube 1: ALTA (a la altura de la cabeza / pelo del alumno) - Mediana (~68px) -->
+        <div class="absolute top-[8px] cloud-uniform delay-0 w-[68px]">
+          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+          </svg>
+        </div>
+
+        <!-- Nube 2: MEDIA-ALTA (a la altura de los ojos y rostro) - Pequeña (~38px) -->
+        <div class="absolute top-[52px] cloud-uniform delay-1 w-[38px]">
+          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+          </svg>
+        </div>
+
+        <!-- Nube 3: CENTRO (a la altura de barbilla y cuello) - Grande (~116px) como en tu captura -->
+        <div class="absolute top-[105px] cloud-uniform delay-2 w-[116px]">
+          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+          </svg>
+        </div>
+
+        <!-- Nube 4: MEDIA-BAJA (a la altura de los hombros) - Mediana (~62px) -->
+        <div class="absolute top-[152px] cloud-uniform delay-3 w-[62px]">
+          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+          </svg>
+        </div>
+
+        <!-- Nube 5: INFERIOR (rozando la parte baja de la foto y unión de la tarjeta) - Pequeña (~42px) -->
+        <div class="absolute top-[188px] cloud-uniform delay-4 w-[42px]">
+          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 3. FOTO DEL ALUMNO (Distancia reducida: compacta respecto a hora y tarjeta) -->
+      <div class="relative z-20 my-auto pt-2 pb-1 flex flex-col items-center">
+        <div class="w-[130px] h-[130px] rounded-full overflow-hidden border-[2.5px] border-white shadow-md bg-slate-200 relative group cursor-pointer" id="btn-quick-photo" title="Toca para subir o cuadrar foto">
+          <!-- Imagen del alumno con controles de encuadre en vivo -->
+          <img id="disp-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" alt="Foto TIU" class="w-full h-full object-cover transition-transform origin-center pointer-events-none" style="transform: translate(0px, 0px) scale(1);">
+          
+          <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
+            <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. TARJETA BLANCA DE INFORMACIÓN (Pegada inmediatamente debajo de la foto) -->
+      <section class="w-full bg-white rounded-t-[34px] shadow-[0_-8px_25px_rgba(0,0,0,0.04)] px-6 pt-4 pb-8 flex flex-col items-center text-center z-20 relative">
+        
+        <!-- Nombres en rojo condensado -->
+        <h2 id="disp-name" class="font-condensed font-semibold text-[26px] leading-[1.08] text-tiu-red tracking-[0.015em] uppercase">
+          GEREMY ALEXANDRO
+        </h2>
+        
+        <h3 id="disp-surnames" class="font-condensed font-semibold text-[26px] leading-[1.08] text-tiu-red tracking-[0.03em] uppercase mt-0.5">
+          E*** J***
+        </h3>
+
+        <!-- Código de alumno -->
+        <div class="mt-3.5 flex flex-col items-center leading-tight">
+          <span class="text-tiu-textGray text-[13px] font-normal tracking-tight">
+            Código de alumno:
+          </span>
+          <span id="disp-code" class="text-tiu-darkNavy font-bold text-[17px] tracking-tight mt-0.5">
+            U202123851
+          </span>
+        </div>
+
+        <!-- ID Banner -->
+        <div class="mt-2.5 flex flex-col items-center leading-tight">
+          <span class="text-tiu-textGray text-[13px] font-normal tracking-tight">
+            ID Banner:
+          </span>
+          <span id="disp-banner" class="text-tiu-darkNavy font-bold text-[17px] tracking-tight mt-0.5">
+            N04088479
+          </span>
+        </div>
+
+        <!-- Carrera universitaria -->
+        <div class="mt-3.5 pt-0.5">
+          <span id="disp-career" class="text-tiu-darkNavy font-bold text-[15px] uppercase tracking-normal">
+            ING. SISTEMAS DE INFORMACIÓN
+          </span>
+        </div>
+
+        <!-- Campus con pin de mapa -->
+        <div class="mt-2 flex items-center justify-center space-x-1.5 text-[13px] font-medium text-slate-700">
+          <svg class="w-3.5 h-3.5 text-tiu-red shrink-0 fill-current" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          <span id="disp-campus" class="text-slate-800 tracking-tight">
+            Campus San Isidro
+          </span>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- BARRA INFERIOR DE NAVEGACIÓN (iOS Home Bar) -->
+    <div class="w-full pb-2 flex justify-center bg-white z-30">
+      <div class="w-32 h-1 bg-slate-300 rounded-full"></div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE CONFIGURACIÓN (SE ACTIVA AL TOCAR LA FLECHA '<') -->
+    <!-- ======================================================== -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex-col justify-end">
+      <div id="modal-backdrop" class="flex-1 w-full"></div>
+
+      <div class="w-full max-w-lg mx-auto bg-white rounded-t-[32px] p-6 max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl modal-enter">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-tiu-red"></span>
+            <h3 class="text-lg font-bold text-slate-900 font-inter">Configuración del TIU</h3>
+          </div>
+          <button id="btn-close-modal" type="button" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 text-sm font-bold active:scale-95">
+            ✕
+          </button>
+        </div>
+
+        <form id="settings-form" class="space-y-4 pt-4 text-xs font-medium text-slate-700">
+          
+          <!-- SELECTOR DE MODELO DE CELULAR -->
+          <div class="bg-blue-50/70 p-3.5 rounded-2xl border border-blue-100">
+            <label class="block font-semibold text-blue-900 mb-1">
+              📱 Formato de pantalla de celular:
+            </label>
+            <select id="input-device-model" class="w-full bg-white border border-blue-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:ring-2 focus:ring-blue-400 outline-none text-xs">
+              <option value="auto">📱 Pantalla completa / Adaptable a tu celular</option>
+              <option value="iphone16promax">iPhone 16 Pro Max / 15 Pro Max (Grande)</option>
+              <option value="iphone15">iPhone 16 / 15 / 14 / 13 (Estándar)</option>
+              <option value="iphoneplus">iPhone Plus (14 / 15 Plus)</option>
+              <option value="s24ultra">Samsung Galaxy S25 / S24 Ultra</option>
+              <option value="s24">Samsung Galaxy S25 / S24</option>
+            </select>
+          </div>
+
+          <!-- HERRAMIENTA PARA CUADRAR FOTO DE PERFIL -->
+          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-slate-800">📸 Cuadrar y ajustar fotografía</span>
+              <button type="button" id="btn-reset-crop" class="text-[11px] text-tiu-red hover:underline">
+                Restablecer
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-tiu-red shrink-0 bg-slate-200">
+                <img id="modal-preview-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover origin-center">
+              </div>
+              <div class="flex-1">
+                <label for="input-avatar-file" class="inline-block bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-semibold cursor-pointer hover:bg-slate-100 active:scale-95 transition-transform shadow-xs">
+                  📁 Cargar nueva foto
+                </label>
+                <input type="file" id="input-avatar-file" accept="image/*" class="hidden">
+                <p class="text-[10px] text-slate-500 mt-1">Usa cualquier foto de tu galería o cámara.</p>
+              </div>
+            </div>
+
+            <!-- Deslizador Zoom -->
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-600 mb-0.5">
+                <span>Zoom (Tamaño)</span>
+                <span id="label-zoom">1.0x</span>
+              </div>
+              <input type="range" id="input-crop-zoom" min="0.8" max="2.5" step="0.05" value="1.0" class="w-full accent-[#EA3343] cursor-pointer">
+            </div>
+
+            <!-- Deslizador Eje X -->
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-600 mb-0.5">
+                <span>Mover Horizontal (X)</span>
+                <span id="label-x">0px</span>
+              </div>
+              <input type="range" id="input-crop-x" min="-80" max="80" step="1" value="0" class="w-full accent-[#EA3343] cursor-pointer">
+            </div>
+
+            <!-- Deslizador Eje Y -->
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-600 mb-0.5">
+                <span>Mover Vertical (Y)</span>
+                <span id="label-y">0px</span>
+              </div>
+              <input type="range" id="input-crop-y" min="-80" max="80" step="1" value="0" class="w-full accent-[#EA3343] cursor-pointer">
+            </div>
+          </div>
+
+          <!-- DATOS DEL ALUMNO -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-slate-600 mb-1">Nombres:</label>
+              <input type="text" id="input-name" value="GEREMY ALEXANDRO" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none uppercase font-semibold">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-slate-600">Apellidos:</label>
+                <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-slate-500 select-none">
+                  <input type="checkbox" id="input-mask-surnames" checked class="accent-[#EA3343] rounded">
+                  <span>Modo censura (E*** J***)</span>
+                </label>
+              </div>
+              <input type="text" id="input-surnames" value="ESPINOZA JARAMILLO" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none uppercase font-semibold">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-600 mb-1">Código de alumno:</label>
+                <input type="text" id="input-code" value="U202123851" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none font-semibold">
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">ID Banner:</label>
+                <input type="text" id="input-banner" value="N04088479" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none font-semibold">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-slate-600 mb-1">Carrera profesional:</label>
+              <input type="text" id="input-career" value="ING. SISTEMAS DE INFORMACIÓN" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none font-semibold uppercase">
+            </div>
+
+            <div>
+              <label class="block text-slate-600 mb-1">Campus:</label>
+              <input type="text" id="input-campus" value="Campus San Isidro" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-tiu-red outline-none font-medium">
+            </div>
+          </div>
+
+          <!-- BOTÓN GUARDAR -->
+          <div class="pt-2">
+            <button type="button" id="btn-save-settings" class="w-full bg-tiu-red hover:bg-red-600 text-white font-bold py-2.5 rounded-xl shadow-md active:scale-95 transition-transform text-xs uppercase tracking-wider">
+              Guardar y Ver TIU
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    (function () {
+      const state = {
+        name: 'GEREMY ALEXANDRO',
+        surnames: 'ESPINOZA JARAMILLO',
+        maskSurnames: true,
+        code: 'U202123851',
+        banner: 'N04088479',
+        career: 'ING. SISTEMAS DE INFORMACIÓN',
+        campus: 'Campus San Isidro',
+        avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
+        crop: { zoom: 1.0, x: 0, y: 0 },
+        deviceModel: 'auto'
+      };
+
+      try {
+        const saved = localStorage.getItem('tiu_app_state_v4');
+        if (saved) Object.assign(state, JSON.parse(saved));
+      } catch (e) {
+        console.warn('LocalStorage:', e);
+      }
+
+      const liveTimeEl = document.getElementById('live-time');
+      const liveDateEl = document.getElementById('live-date');
+      const topStatusTimeEl = document.getElementById('top-status-time');
+
+      const dispNameEl = document.getElementById('disp-name');
+      const dispSurnamesEl = document.getElementById('disp-surnames');
+      const dispCodeEl = document.getElementById('disp-code');
+      const dispBannerEl = document.getElementById('disp-banner');
+      const dispCareerEl = document.getElementById('disp-career');
+      const dispCampusEl = document.getElementById('disp-campus');
+      const dispAvatarEl = document.getElementById('disp-avatar');
+
+      const settingsModal = document.getElementById('settings-modal');
+      const modalBackdrop = document.getElementById('modal-backdrop');
+      const btnOpenSettings = document.getElementById('btn-open-settings');
+      const btnCloseModal = document.getElementById('btn-close-modal');
+      const btnSaveSettings = document.getElementById('btn-save-settings');
+      const btnQuickPhoto = document.getElementById('btn-quick-photo');
+
+      const inputDeviceModel = document.getElementById('input-device-model');
+      const inputName = document.getElementById('input-name');
+      const inputSurnames = document.getElementById('input-surnames');
+      const inputMaskSurnames = document.getElementById('input-mask-surnames');
+      const inputCode = document.getElementById('input-code');
+      const inputBanner = document.getElementById('input-banner');
+      const inputCareer = document.getElementById('input-career');
+      const inputCampus = document.getElementById('input-campus');
+      const inputAvatarFile = document.getElementById('input-avatar-file');
+
+      const inputCropZoom = document.getElementById('input-crop-zoom');
+      const inputCropX = document.getElementById('input-crop-x');
+      const inputCropY = document.getElementById('input-crop-y');
+      const labelZoom = document.getElementById('label-zoom');
+      const labelX = document.getElementById('label-x');
+      const labelY = document.getElementById('label-y');
+      const btnResetCrop = document.getElementById('btn-reset-crop');
+      const modalPreviewAvatar = document.getElementById('modal-preview-avatar');
+      const phoneContainer = document.getElementById('phone-container');
+
+      function maskText(str) {
+        if (!str) return 'E*** J***';
+        return str
+          .trim()
+          .split(/\s+/)
+          .map(word => word ? (word[0].toUpperCase() + '***') : '')
+          .join(' ');
+      }
+
+      function renderUI() {
+        dispNameEl.textContent = state.name;
+        dispSurnamesEl.textContent = state.maskSurnames ? maskText(state.surnames) : state.surnames.toUpperCase();
+        dispCodeEl.textContent = state.code;
+        dispBannerEl.textContent = state.banner;
+        dispCareerEl.textContent = state.career.toUpperCase();
+        dispCampusEl.textContent = state.campus;
+
+        dispAvatarEl.src = state.avatarUrl;
+        modalPreviewAvatar.src = state.avatarUrl;
+
+        const transformStr = `translate(${state.crop.x}px, ${state.crop.y}px) scale(${state.crop.zoom})`;
+        dispAvatarEl.style.transform = transformStr;
+        modalPreviewAvatar.style.transform = transformStr;
+
+        inputName.value = state.name;
+        inputSurnames.value = state.surnames;
+        inputMaskSurnames.checked = state.maskSurnames;
+        inputCode.value = state.code;
+        inputBanner.value = state.banner;
+        inputCareer.value = state.career;
+        inputCampus.value = state.campus;
+        inputDeviceModel.value = state.deviceModel;
+
+        inputCropZoom.value = state.crop.zoom;
+        inputCropX.value = state.crop.x;
+        inputCropY.value = state.crop.y;
+        labelZoom.textContent = state.crop.zoom.toFixed(2) + 'x';
+        labelX.textContent = state.crop.x + 'px';
+        labelY.textContent = state.crop.y + 'px';
+
+        applyDeviceModel(state.deviceModel);
+      }
+
+      function applyDeviceModel(model) {
+        phoneContainer.className = "relative w-full h-full shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 mx-auto ";
+
+        switch (model) {
+          case 'iphone16promax':
+            phoneContainer.className += "sm:max-w-[430px] sm:h-[932px] sm:rounded-[55px] sm:border-[9px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+          case 'iphone15':
+            phoneContainer.className += "sm:max-w-[393px] sm:h-[852px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+          case 'iphoneplus':
+            phoneContainer.className += "sm:max-w-[428px] sm:h-[926px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+          case 's24ultra':
+            phoneContainer.className += "sm:max-w-[412px] sm:h-[915px] sm:rounded-[36px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+          case 's24':
+            phoneContainer.className += "sm:max-w-[360px] sm:h-[780px] sm:rounded-[38px] sm:border-[7px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+          case 'auto':
+          default:
+            phoneContainer.className += "sm:max-w-[400px] sm:h-[860px] sm:rounded-[46px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            break;
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem('tiu_app_state_v4', JSON.stringify(state));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const daysEs = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
+
+      function updateClock() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+
+        liveTimeEl.textContent = `${hh}:${mm}:${ss}`;
+        
+        let hh12 = now.getHours();
+        if (hh12 === 0) hh12 = 12;
+        if (hh12 > 12) hh12 -= 12;
+        topStatusTimeEl.textContent = `${hh12}:${mm}`;
+
+        const dayName = daysEs[now.getDay()];
+        const dayNum = now.getDate();
+        const monthName = monthsEs[now.getMonth()];
+        const year = now.getFullYear();
+
+        liveDateEl.textContent = `${dayName}, ${dayNum} ${monthName} ${year}`;
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      function openModal() {
+        settingsModal.classList.remove('hidden');
+        settingsModal.classList.add('flex');
+      }
+
+      function closeModal() {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+      }
+
+      btnOpenSettings.addEventListener('click', openModal);
+      btnQuickPhoto.addEventListener('click', openModal);
+      btnCloseModal.addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', closeModal);
+
+      btnSaveSettings.addEventListener('click', function () {
+        state.name = inputName.value.trim() || 'GEREMY ALEXANDRO';
+        state.surnames = inputSurnames.value.trim() || 'ESPINOZA JARAMILLO';
+        state.maskSurnames = inputMaskSurnames.checked;
+        state.code = inputCode.value.trim() || 'U202123851';
+        state.banner = inputBanner.value.trim() || 'N04088479';
+        state.career = inputCareer.value.trim() || 'ING. SISTEMAS DE INFORMACIÓN';
+        state.campus = inputCampus.value.trim() || 'Campus San Isidro';
+        state.deviceModel = inputDeviceModel.value;
+
+        saveState();
+        renderUI();
+        closeModal();
+      });
+
+      dispSurnamesEl.addEventListener('click', function () {
+        state.maskSurnames = !state.maskSurnames;
+        saveState();
+        renderUI();
+      });
+
+      function updateCropLive() {
+        state.crop.zoom = parseFloat(inputCropZoom.value);
+        state.crop.x = parseInt(inputCropX.value, 10);
+        state.crop.y = parseInt(inputCropY.value, 10);
+
+        labelZoom.textContent = state.crop.zoom.toFixed(2) + 'x';
+        labelX.textContent = state.crop.x + 'px';
+        labelY.textContent = state.crop.y + 'px';
+
+        const transformStr = `translate(${state.crop.x}px, ${state.crop.y}px) scale(${state.crop.zoom})`;
+        dispAvatarEl.style.transform = transformStr;
+        modalPreviewAvatar.style.transform = transformStr;
+      }
+
+      inputCropZoom.addEventListener('input', updateCropLive);
+      inputCropX.addEventListener('input', updateCropLive);
+      inputCropY.addEventListener('input', updateCropLive);
+
+      btnResetCrop.addEventListener('click', function () {
+        inputCropZoom.value = 1.0;
+        inputCropX.value = 0;
+        inputCropY.value = 0;
+        updateCropLive();
+        saveState();
+      });
+
+      inputDeviceModel.addEventListener('change', function () {
+        state.deviceModel = this.value;
+        applyDeviceModel(state.deviceModel);
+      });
+
+      inputAvatarFile.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          state.avatarUrl = evt.target.result;
+          state.crop = { zoom: 1.0, x: 0, y: 0 };
+          saveState();
+          renderUI();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      renderUI();
+    })();
+  </script>
+</body>
+</html>
