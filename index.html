@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-100">
+<html lang="es" class="h-full" style="background-color: #F5F6FE;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- Integración nativa con iOS / PWA para fondo uniforme -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="TIU Virtual">
+  <meta name="theme-color" content="#F5F6FE">
   <meta name="mobile-web-app-capable" content="yes">
+  
   <title>TIU Virtual - Identificación Universitaria</title>
 
   <!-- Tailwind CSS -->
@@ -17,11 +21,11 @@
         extend: {
           colors: {
             tiu: {
+              appBg: '#F5F6FE',
               pill: '#D7D8FE',
               red: '#EA3343',
               darkNavy: '#1E293B',
               textGray: '#64748B',
-              bgLight: '#F5F7FD',
               cardBg: '#FFFFFF'
             }
           },
@@ -40,14 +44,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    /* Fondo uniforme idéntico en toda la pantalla */
+    html, body {
+      background-color: #F5F6FE !important;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       touch-action: manipulation;
       user-select: none;
     }
 
-    /* Animación de nubes: Desplazamiento uniforme de DERECHA a IZQUIERDA */
+    /* Animación de nubes: Desplazamiento continuo de DERECHA a IZQUIERDA */
     @keyframes cloudDriftRightToLeft {
       0% {
         transform: translate3d(430px, 0, 0);
@@ -57,19 +68,17 @@
       }
     }
 
-    /* TODAS LAS NUBES VIAJAN A LA EXACTA MISMA VELOCIDAD (ligeramente más rápidas: 4.1s) */
+    /* Velocidad constante e idéntica para todas las nubes */
     .cloud-uniform {
-      animation: cloudDriftRightToLeft 4.1s linear infinite;
+      animation: cloudDriftRightToLeft 4.2s linear infinite;
     }
 
-    /* Desfases escalonados para que el flujo sea continuo e ininterrumpido */
     .delay-0 { animation-delay: 0.0s; }
-    .delay-1 { animation-delay: -0.82s; }
-    .delay-2 { animation-delay: -1.64s; }
-    .delay-3 { animation-delay: -2.46s; }
-    .delay-4 { animation-delay: -3.28s; }
+    .delay-1 { animation-delay: -0.84s; }
+    .delay-2 { animation-delay: -1.68s; }
+    .delay-3 { animation-delay: -2.52s; }
+    .delay-4 { animation-delay: -3.36s; }
 
-    /* Animación suave para el modal inferior */
     @keyframes slideUpModal {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
@@ -82,102 +91,103 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="h-full flex items-center justify-center p-0 sm:p-4 text-slate-800 bg-[#E9ECF4]">
+<body class="h-full flex items-center justify-center p-0 text-slate-800">
 
-  <!-- CONTENEDOR PRINCIPAL / CELULAR -->
-  <main id="phone-container" class="relative w-full h-full sm:h-[860px] sm:max-w-[400px] bg-[#F5F7FD] sm:rounded-[46px] shadow-2xl flex flex-col justify-between overflow-hidden sm:border-[8px] sm:border-slate-800 transition-all duration-300">
+  <!-- CONTENEDOR PRINCIPAL: Color #F5F6FE continuo en todo el viewport -->
+  <main id="phone-container" class="relative w-full h-full sm:h-[860px] sm:max-w-[400px] bg-[#F5F6FE] flex flex-col justify-between overflow-hidden sm:rounded-[46px] sm:border-[8px] sm:border-slate-800 transition-all duration-300">
     
-    <!-- CABECERA: Botón Atrás '<' y TIU VIRTUAL (Adaptado con safe-area nativo para no colisionar con el Dynamic Island real) -->
-    <header class="w-full px-5 pt-[max(14px,env(safe-area-inset-top))] pb-1 flex items-center justify-start gap-3.5 z-30 relative select-none">
+    <!-- CABECERA: Tono idéntico y margen superior seguro para librar el Dynamic Island -->
+    <header class="w-full px-5 pt-[max(14px,env(safe-area-inset-top))] pb-1 flex items-center justify-start gap-3 z-30 relative select-none bg-[#F5F6FE]">
       <!-- Botón atrás: Círculo blanco con chevron rojo -->
-      <button id="btn-open-settings" type="button" aria-label="Abrir ajustes" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-slate-100 hover:bg-slate-50 shrink-0">
+      <button id="btn-open-settings" type="button" aria-label="Abrir ajustes" class="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-slate-100 hover:bg-slate-50 shrink-0">
         <svg class="w-5 h-5 text-tiu-red stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
-      <!-- Título de la vista: TIU VIRTUAL (Condensado, bold, kerning ajustado y a la izquierda) -->
+      <!-- Título de la vista: TIU VIRTUAL -->
       <h1 class="font-condensed font-bold text-[20px] tracking-tight text-slate-900 uppercase leading-none">
         TIU VIRTUAL
       </h1>
     </header>
 
-    <!-- ZONA CENTRAL COMPACTA: HORA, NUBES EN TODA LA ALTURA Y FOTO -->
-    <div class="relative w-full flex-1 flex flex-col items-center justify-between pt-0.5">
+    <!-- ZONA MEDIA: HORA, FOTO Y NUBES DE FONDO -->
+    <div class="relative w-full flex-1 flex flex-col items-center justify-between">
       
-      <!-- 1. RELOJ DIGITAL Y FECHA -->
-      <div class="w-full flex flex-col items-center z-30 relative px-4 mt-0.5">
+      <!-- 1. RELOJ DIGITAL Y FECHA (Con separación hacia abajo respecto al título) -->
+      <div class="w-full flex flex-col items-center z-30 relative px-4 mt-5">
         <!-- Pastilla de hora #D7D8FE -->
         <div class="px-7 py-2.5 rounded-[18px] bg-tiu-pill shadow-xs flex items-center justify-center min-w-[190px]">
           <span id="live-time" class="font-inter font-normal text-[31px] text-slate-900 tracking-tight" style="font-variant-numeric: tabular-nums;">
-            16:34:55
+            17:31:51
           </span>
         </div>
 
-        <!-- Fecha en español con mayúscula inicial -->
+        <!-- Fecha en tiempo real -->
         <p id="live-date" class="text-tiu-textGray text-[13.5px] font-normal mt-2 tracking-tight capitalize">
           Martes, 20 Oct 2026
         </p>
       </div>
 
-      <!-- 2. PISTA DE NUBES ANIMADAS:
-           Cubre TODA la altura vertical de la foto del alumno (220px de altura total)
-           Desde la cabeza hasta los hombros y la base, todas a velocidad uniforme -->
-      <div class="absolute w-full top-[108px] h-[225px] overflow-hidden pointer-events-none z-10 select-none">
+      <!-- 2. CONTENEDOR CENTRAL: FOTO + NUBES EN LA MISMA ALTURA -->
+      <div class="relative w-full flex flex-col items-center justify-center my-auto py-1">
         
-        <!-- Nube 1: ALTA (a la altura de la cabeza / pelo del alumno) - Mediana (~68px) -->
-        <div class="absolute top-[8px] cloud-uniform delay-0 w-[68px]">
-          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
-            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
-          </svg>
-        </div>
-
-        <!-- Nube 2: MEDIA-ALTA (a la altura de los ojos y rostro) - Pequeña (~38px) -->
-        <div class="absolute top-[52px] cloud-uniform delay-1 w-[38px]">
-          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
-            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
-          </svg>
-        </div>
-
-        <!-- Nube 3: CENTRO (a la altura de barbilla y cuello) - Grande (~116px) como en tu captura -->
-        <div class="absolute top-[105px] cloud-uniform delay-2 w-[116px]">
-          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
-            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
-          </svg>
-        </div>
-
-        <!-- Nube 4: MEDIA-BAJA (a la altura de los hombros) - Mediana (~62px) -->
-        <div class="absolute top-[152px] cloud-uniform delay-3 w-[62px]">
-          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
-            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
-          </svg>
-        </div>
-
-        <!-- Nube 5: INFERIOR (rozando la parte baja de la foto y unión de la tarjeta) - Pequeña (~42px) -->
-        <div class="absolute top-[188px] cloud-uniform delay-4 w-[42px]">
-          <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
-            <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
-          </svg>
-        </div>
-      </div>
-
-      <!-- 3. FOTO DEL ALUMNO (Distancia reducida: compacta respecto a hora y tarjeta) -->
-      <div class="relative z-20 my-auto pt-2 pb-1 flex flex-col items-center">
-        <div class="w-[130px] h-[130px] rounded-full overflow-hidden border-[2.5px] border-white shadow-md bg-slate-200 relative group cursor-pointer" id="btn-quick-photo" title="Toca para subir o cuadrar foto">
-          <!-- Imagen del alumno con controles de encuadre en vivo -->
-          <img id="disp-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" alt="Foto TIU" class="w-full h-full object-cover transition-transform origin-center pointer-events-none" style="transform: translate(0px, 0px) scale(1);">
+        <!-- PISTA DE NUBES ANIMADAS (Fondo exacto #D7D8FE a la altura de la foto) -->
+        <div class="absolute inset-0 w-full overflow-hidden pointer-events-none z-10 select-none">
           
-          <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
-            <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          <!-- Nube 1: Superior (cabeza / pelo) - Mediana (~68px) -->
+          <div class="absolute top-[6px] cloud-uniform delay-0 w-[68px]">
+            <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+              <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+            </svg>
+          </div>
+
+          <!-- Nube 2: Ojos y frente - Pequeña (~38px) -->
+          <div class="absolute top-[40px] cloud-uniform delay-1 w-[38px]">
+            <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+              <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+            </svg>
+          </div>
+
+          <!-- Nube 3: Centro (barbilla y cuello) - Grande (~116px) -->
+          <div class="absolute top-[72px] cloud-uniform delay-2 w-[116px]">
+            <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+              <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+            </svg>
+          </div>
+
+          <!-- Nube 4: Hombros - Mediana (~62px) -->
+          <div class="absolute top-[108px] cloud-uniform delay-3 w-[62px]">
+            <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+              <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
+            </svg>
+          </div>
+
+          <!-- Nube 5: Parte baja rozando la tarjeta - Pequeña (~42px) -->
+          <div class="absolute top-[138px] cloud-uniform delay-4 w-[42px]">
+            <svg viewBox="0 0 160 60" class="w-full h-auto fill-tiu-pill">
+              <path d="M 6,54 L 154,54 C 151,48 145,45 138,46 C 130,29 112,12 88,12 C 70,12 56,22 50,30 C 42,24 30,27 24,35 C 16,33 8,39 6,54 Z" />
             </svg>
           </div>
         </div>
+
+        <!-- FOTO CIRCULAR DEL ALUMNO -->
+        <div class="relative z-20">
+          <div class="w-[130px] h-[130px] rounded-full overflow-hidden border-[2.5px] border-white shadow-md bg-slate-200 relative group cursor-pointer" id="btn-quick-photo" title="Toca para subir o cuadrar foto">
+            <img id="disp-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" alt="Foto TIU" class="w-full h-full object-cover transition-transform origin-center pointer-events-none" style="transform: translate(0px, 0px) scale(1);">
+            <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
+              <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 4. TARJETA BLANCA DE INFORMACIÓN (Pegada inmediatamente debajo de la foto) -->
-      <section class="w-full bg-white rounded-t-[34px] shadow-[0_-8px_25px_rgba(0,0,0,0.04)] px-6 pt-4 pb-8 flex flex-col items-center text-center z-20 relative">
+      <!-- 3. TARJETA BLANCA DE INFORMACIÓN (Subida hacia arriba para quedar pegada a la foto) -->
+      <section class="w-full bg-white rounded-t-[34px] shadow-[0_-8px_25px_rgba(0,0,0,0.04)] px-6 pt-5 pb-7 flex flex-col items-center text-center z-20 relative -mt-3">
         
         <!-- Nombres en rojo condensado -->
         <h2 id="disp-name" class="font-condensed font-semibold text-[26px] leading-[1.08] text-tiu-red tracking-[0.015em] uppercase">
@@ -229,8 +239,8 @@
 
     </div>
 
-    <!-- ESPACIADOR INFERIOR CON PROTECCIÓN SAFE AREA NATIVO (Sin barra de navegación simulada duplicada) -->
-    <div class="w-full pb-[max(14px,env(safe-area-inset-bottom))] bg-white z-30"></div>
+    <!-- ESPACIADOR INFERIOR DE PROTECCIÓN CON FONDO BLANCO -->
+    <div class="w-full pb-[max(12px,env(safe-area-inset-bottom))] bg-white z-30"></div>
 
     <!-- ======================================================== -->
     <!-- MODAL DE CONFIGURACIÓN (SE ACTIVA AL TOCAR LA FLECHA '<') -->
@@ -387,7 +397,7 @@
       };
 
       try {
-        const saved = localStorage.getItem('tiu_app_state_v4');
+        const saved = localStorage.getItem('tiu_app_state_v5');
         if (saved) Object.assign(state, JSON.parse(saved));
       } catch (e) {
         console.warn('LocalStorage:', e);
@@ -475,34 +485,34 @@
       }
 
       function applyDeviceModel(model) {
-        phoneContainer.className = "relative w-full h-full shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 mx-auto ";
+        phoneContainer.className = "relative w-full h-full flex flex-col justify-between overflow-hidden transition-all duration-300 mx-auto ";
 
         switch (model) {
           case 'iphone16promax':
-            phoneContainer.className += "sm:max-w-[430px] sm:h-[932px] sm:rounded-[55px] sm:border-[9px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[430px] sm:h-[932px] sm:rounded-[55px] sm:border-[9px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
           case 'iphone15':
-            phoneContainer.className += "sm:max-w-[393px] sm:h-[852px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[393px] sm:h-[852px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
           case 'iphoneplus':
-            phoneContainer.className += "sm:max-w-[428px] sm:h-[926px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[428px] sm:h-[926px] sm:rounded-[50px] sm:border-[8px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
           case 's24ultra':
-            phoneContainer.className += "sm:max-w-[412px] sm:h-[915px] sm:rounded-[36px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[412px] sm:h-[915px] sm:rounded-[36px] sm:border-[8px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
           case 's24':
-            phoneContainer.className += "sm:max-w-[360px] sm:h-[780px] sm:rounded-[38px] sm:border-[7px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[360px] sm:h-[780px] sm:rounded-[38px] sm:border-[7px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
           case 'auto':
           default:
-            phoneContainer.className += "sm:max-w-[400px] sm:h-[860px] sm:rounded-[46px] sm:border-[8px] sm:border-slate-800 bg-[#F5F7FD]";
+            phoneContainer.className += "sm:max-w-[400px] sm:h-[860px] sm:rounded-[46px] sm:border-[8px] sm:border-slate-800 bg-[#F5F6FE]";
             break;
         }
       }
 
       function saveState() {
         try {
-          localStorage.setItem('tiu_app_state_v4', JSON.stringify(state));
+          localStorage.setItem('tiu_app_state_v5', JSON.stringify(state));
         } catch (e) {
           console.error(e);
         }
@@ -614,5 +624,7 @@
       renderUI();
     })();
   </script>
+</body>
+</html>
 </body>
 </html>
