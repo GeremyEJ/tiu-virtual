@@ -2,7 +2,11 @@
 <html lang="es" class="h-full bg-slate-100">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TIU Virtual">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>TIU Virtual - Identificación Universitaria</title>
 
   <!-- Tailwind CSS -->
@@ -53,17 +57,17 @@
       }
     }
 
-    /* TODAS LAS NUBES VIAJAN A LA EXACTA MISMA VELOCIDAD (duración idéntica de 5.6s) */
+    /* TODAS LAS NUBES VIAJAN A LA EXACTA MISMA VELOCIDAD (ligeramente más rápidas: 4.1s) */
     .cloud-uniform {
-      animation: cloudDriftRightToLeft 5.6s linear infinite;
+      animation: cloudDriftRightToLeft 4.1s linear infinite;
     }
 
     /* Desfases escalonados para que el flujo sea continuo e ininterrumpido */
     .delay-0 { animation-delay: 0.0s; }
-    .delay-1 { animation-delay: -1.1s; }
-    .delay-2 { animation-delay: -2.2s; }
-    .delay-3 { animation-delay: -3.4s; }
-    .delay-4 { animation-delay: -4.5s; }
+    .delay-1 { animation-delay: -0.82s; }
+    .delay-2 { animation-delay: -1.64s; }
+    .delay-3 { animation-delay: -2.46s; }
+    .delay-4 { animation-delay: -3.28s; }
 
     /* Animación suave para el modal inferior */
     @keyframes slideUpModal {
@@ -83,25 +87,8 @@
   <!-- CONTENEDOR PRINCIPAL / CELULAR -->
   <main id="phone-container" class="relative w-full h-full sm:h-[860px] sm:max-w-[400px] bg-[#F5F7FD] sm:rounded-[46px] shadow-2xl flex flex-col justify-between overflow-hidden sm:border-[8px] sm:border-slate-800 transition-all duration-300">
     
-    <!-- BARRA SUPERIOR MÓVIL (Hora de estado, Dynamic Island y Batería) -->
-    <div class="w-full pt-2.5 px-6 flex justify-between items-center text-[12px] font-semibold text-slate-900 z-30 select-none">
-      <span id="top-status-time" class="tracking-tight font-inter">4:34</span>
-      <div class="h-5 w-24 bg-black rounded-full flex items-center justify-center space-x-1.5 px-2">
-        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-        <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
-      </div>
-      <div class="flex items-center space-x-1.5 text-[11px] font-inter">
-        <span>5G</span>
-        <svg class="w-5 h-3 fill-current" viewBox="0 0 24 12">
-          <rect x="1" y="1" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <rect x="2.5" y="2.5" width="12" height="7" rx="1.2" fill="currentColor"/>
-          <path d="M21 4.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- CABECERA: Botón Atrás '<' y TIU VIRTUAL a la izquierda y con letras juntas -->
-    <header class="w-full px-5 pt-2 pb-1 flex items-center justify-start gap-3.5 z-30 relative select-none">
+    <!-- CABECERA: Botón Atrás '<' y TIU VIRTUAL (Adaptado con safe-area nativo para no colisionar con el Dynamic Island real) -->
+    <header class="w-full px-5 pt-[max(14px,env(safe-area-inset-top))] pb-1 flex items-center justify-start gap-3.5 z-30 relative select-none">
       <!-- Botón atrás: Círculo blanco con chevron rojo -->
       <button id="btn-open-settings" type="button" aria-label="Abrir ajustes" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-slate-100 hover:bg-slate-50 shrink-0">
         <svg class="w-5 h-5 text-tiu-red stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -242,10 +229,8 @@
 
     </div>
 
-    <!-- BARRA INFERIOR DE NAVEGACIÓN (iOS Home Bar) -->
-    <div class="w-full pb-2 flex justify-center bg-white z-30">
-      <div class="w-32 h-1 bg-slate-300 rounded-full"></div>
-    </div>
+    <!-- ESPACIADOR INFERIOR CON PROTECCIÓN SAFE AREA NATIVO (Sin barra de navegación simulada duplicada) -->
+    <div class="w-full pb-[max(14px,env(safe-area-inset-bottom))] bg-white z-30"></div>
 
     <!-- ======================================================== -->
     <!-- MODAL DE CONFIGURACIÓN (SE ACTIVA AL TOCAR LA FLECHA '<') -->
@@ -410,7 +395,6 @@
 
       const liveTimeEl = document.getElementById('live-time');
       const liveDateEl = document.getElementById('live-date');
-      const topStatusTimeEl = document.getElementById('top-status-time');
 
       const dispNameEl = document.getElementById('disp-name');
       const dispSurnamesEl = document.getElementById('disp-surnames');
@@ -534,11 +518,6 @@
         const ss = String(now.getSeconds()).padStart(2, '0');
 
         liveTimeEl.textContent = `${hh}:${mm}:${ss}`;
-        
-        let hh12 = now.getHours();
-        if (hh12 === 0) hh12 = 12;
-        if (hh12 > 12) hh12 -= 12;
-        topStatusTimeEl.textContent = `${hh12}:${mm}`;
 
         const dayName = daysEs[now.getDay()];
         const dayNum = now.getDate();
